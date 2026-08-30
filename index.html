@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>CENT TRADER</title>
+
+<style>
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #000;
+    color: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+.background {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+
+    background:
+        radial-gradient(circle at 20% 20%, #202020 0%, transparent 30%),
+        radial-gradient(circle at 80% 80%, #151515 0%, transparent 30%),
+        #000;
+}
+
+.grid {
+    position: absolute;
+    inset: 0;
+
+    background-image:
+        linear-gradient(
+            rgba(255,255,255,.025) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(255,255,255,.025) 1px,
+            transparent 1px
+        );
+
+    background-size: 45px 45px;
+
+    mask-image:
+        linear-gradient(
+            to bottom,
+            transparent,
+            black 20%,
+            black 80%,
+            transparent
+        );
+}
+
+.glow {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.04);
+    filter: blur(70px);
+    animation: glowMove 8s infinite alternate ease-in-out;
+}
+
+.glow:nth-child(1) {
+    top: -120px;
+    left: -100px;
+}
+
+.glow:nth-child(2) {
+    right: -100px;
+    bottom: -120px;
+    animation-delay: 2s;
+}
+
+@keyframes glowMove {
+    0% {
+        transform: translate(0,0);
+    }
+
+    100% {
+        transform: translate(100px,70px);
+    }
+}
+
+#welcome {
+    position: fixed;
+    inset: 0;
+    background: #000;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    z-index: 999;
+
+    transition:
+        transform 1s ease,
+        opacity 1s ease;
+}
+
+.welcome-text {
+    font-size: clamp(50px, 14vw, 120px);
+    font-weight: 900;
+    letter-spacing: 10px;
+    animation: welcomeIn 1.5s ease;
+}
+
+@keyframes welcomeIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+        filter: blur(15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+    }
+}
+
+.swipe {
+    margin-top: 25px;
+    font-size: 11px;
+    letter-spacing: 5px;
+    color: #777;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%,100% {
+        opacity: .3;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+#welcome.hide {
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+#main {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    padding: 45px 20px;
+
+    overflow-y: auto;
+
+    opacity: 0;
+    transform: translateY(30px);
+
+    transition:
+        opacity 1s ease,
+        transform 1s ease;
+}
+
+#main.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.profile {
+    text-align: center;
+    margin-bottom: 35px;
+}
+
+.profile-image {
+    width: 100px;
+    height: 100px;
+
+    border-radius: 50%;
+    object-fit: cover;
+
+    border: 2px solid #fff;
+
+    display: block;
+    margin: auto;
+
+    background: #111;
+
+    box-shadow:
+        0 0 35px
+        rgba(255,255,255,.12);
+}
+
+.profile h1 {
+    margin-top: 18px;
+    font-size: 27px;
+    letter-spacing: 5px;
+}
+
+.profile p {
+    margin-top: 8px;
+    color: #777;
+    font-size: 13px;
+    letter-spacing: 1px;
+}
+
+.links {
+    width: 100%;
+    max-width: 560px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.link {
+    position: relative;
+
+    width: 100%;
+    min-height: 70px;
+
+    padding: 12px 55px 12px 15px;
+
+    border-radius: 16px;
+    border: 1px solid #333;
+
+    background: rgba(10,10,10,.85);
+
+    backdrop-filter: blur(12px);
+
+    color: #fff;
+    text-decoration: none;
+
+    display: flex;
+    align-items: center;
+
+    transition: .3s ease;
+
+    overflow: hidden;
+}
+
+.link-image {
+    width: 46px;
+    height: 46px;
+
+    border-radius: 12px;
+    object-fit: cover;
+
+    margin-right: 15px;
+
+    background: #111;
+    border: 1px solid #333;
+}
+
+.link-text {
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: 1.5px;
+}
+
+.arrow {
+    position: absolute;
+    right: 20px;
+    font-size: 21px;
+    transition: .3s ease;
+}
+
+.link::before {
+    content: "";
+
+    position: absolute;
+    top: 0;
+    left: -120%;
+
+    width: 100%;
+    height: 100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255,255,255,.15),
+            transparent
+        );
+
+    transition: .7s;
+}
+
+.link:hover::before {
+    left: 120%;
+}
+
+.link:hover {
+    background: #fff;
+    color: #000;
+
+    transform:
+        translateY(-4px)
+        scale(1.01);
+
+    box-shadow:
+        0 15px 40px
+        rgba(255,255,255,.1);
+}
+
+.link:hover .arrow {
+    transform: translateX(6px);
+}
+
+footer {
+    margin-top: 40px;
+    color: #444;
+    font-size: 10px;
+    letter-spacing: 2px;
+}
+
+@media(max-width:500px) {
+
+    .welcome-text {
+        font-size: 50px;
+        letter-spacing: 6px;
+    }
+
+    .profile-image {
+        width: 90px;
+        height: 90px;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="background">
+    <div class="glow"></div>
+    <div class="glow"></div>
+    <div class="grid"></div>
+</div>
+
+<section id="welcome">
+
+    <div class="welcome-text">
+        WELCOME
+    </div>
+
+    <div class="swipe">
+        SWIPE UP
+    </div>
+
+</section>
+
+<main id="main">
+
+    <div class="profile">
+
+        <img
+            class="profile-image"
+            src="https://cdn.phototourl.com/free/2026-08-30-d584ca6a-1110-47e9-b3fa-66137800cf2b.jpg"
+            alt="Profile"
+        >
+
+        <h1>
+            TRADING
+        </h1>
+
+        <p>
+            broker recommendations
+        </p>
+
+    </div>
+
+    <div class="links">
+
+        <!-- HFM -->
+
+        <a
+            class="link"
+            href="https://www.hfm.com/sv/id/?refid=30491182"
+            target="_blank"
+        >
+
+            <img
+                class="link-image"
+                src="https://cdn.phototourl.com/free/2026-08-30-a6cd0468-dfcc-44d3-9568-c8a0416879ec.png"
+                alt="HFM"
+            >
+
+            <span class="link-text">
+                HFM BROKER
+            </span>
+
+            <span class="arrow">
+                →
+            </span>
+
+        </a>
+
+
+        <!-- TELEGRAM -->
+
+        <a
+            class="link"
+            href="https://t.me/+K1uPQSXUi4BmMDk1"
+            target="_blank"
+        >
+
+            <img
+                class="link-image"
+                src="https://cdn.phototourl.com/free/2026-08-30-587483a0-d39a-499e-8f9f-6495e423cfa9.jpg"
+                alt="Telegram"
+            >
+
+            <span class="link-text">
+                TRADING GROUP
+            </span>
+
+            <span class="arrow">
+                →
+            </span>
+
+        </a>
+
+
+        <!-- INSTAGRAM -->
+
+        <a
+            class="link"
+            href="https://www.instagram.com/pejuangcent092/"
+            target="_blank"
+        >
+
+            <img
+                class="link-image"
+                src="https://cdn.phototourl.com/free/2026-08-30-dc7d9dff-c3c9-48ad-a967-d6c1c0afe3b6.jpg"
+                alt="Instagram"
+            >
+
+            <span class="link-text">
+                INSTAGRAM 
+            </span>
+
+            <span class="arrow">
+                →
+            </span>
+
+        </a>
+
+    </div>
+
+    <footer>
+        © 2026 • TRADING COMMUNITY
+    </footer>
+
+</main>
+
+<script>
+
+const welcome =
+    document.getElementById("welcome");
+
+const main =
+    document.getElementById("main");
+
+let startY = 0;
+let entered = false;
+
+
+function enterWebsite() {
+
+    if (entered) return;
+
+    entered = true;
+
+    welcome.classList.add("hide");
+
+    setTimeout(() => {
+
+        main.classList.add("show");
+
+        document.body.style.overflow =
+            "auto";
+
+    }, 400);
+
+}
+
+
+setTimeout(() => {
+
+    enterWebsite();
+
+}, 3000);
+
+
+welcome.addEventListener(
+    "click",
+    enterWebsite
+);
+
+
+welcome.addEventListener(
+    "touchstart",
+    (event) => {
+
+        startY =
+            event.touches[0].clientY;
+
+    }
+);
+
+
+welcome.addEventListener(
+    "touchend",
+    (event) => {
+
+        const endY =
+            event.changedTouches[0].clientY;
+
+        const distance =
+            startY - endY;
+
+        if (distance > 50) {
+
+            enterWebsite();
+
+        }
+
+    }
+);
+
+</script>
+
+</body>
+</html>
